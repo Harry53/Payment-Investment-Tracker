@@ -1,8 +1,12 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "payment-investment-tracker"
-version = "0.1.0"
+version = "0.1.1"
 description = "Professional personal finance and wealth management system"
-requires-python = ">=3.13"
+requires-python = ">=3.12,<3.14"
 dependencies = [
   "Flask>=3.0", "Flask-SQLAlchemy>=3.1", "Flask-Migrate>=4.0", "Flask-Login>=0.6",
   "Flask-WTF>=1.2", "Flask-Mail>=0.10", "Flask-Limiter>=3.8", "Flask-Session>=0.8",
@@ -13,6 +17,13 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.2", "pytest-flask>=1.3"]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+exclude = ["nginx*", "migrations*", "sample_templates*", "tests*", "docs*"]
+
+[tool.setuptools.package-data]
+app = ["templates/**/*.html", "static/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
