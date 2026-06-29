@@ -1,0 +1,2 @@
+document.getElementById('themeToggle')?.addEventListener('click',()=>{const h=document.documentElement;h.dataset.bsTheme=h.dataset.bsTheme==='dark'?'light':'dark'});
+for (const id of ['cashFlowChart','growthChart']) { const el=document.getElementById(id); if(el) new Chart(el,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:id,data:[10,12,9,14,18,20],borderColor:'#0d6efd',tension:.35}]},options:{responsive:true}}); }
