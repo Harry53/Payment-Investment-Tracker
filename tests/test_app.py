@@ -21,3 +21,14 @@ def test_password_hashing_roundtrip():
         user.set_password('very-secure-password')
         assert user.password_hash != 'very-secure-password'
         assert user.check_password('very-secure-password')
+
+
+def test_sqlite_parent_directory_created(tmp_path, monkeypatch):
+    db_file = tmp_path / 'nested' / 'finance.db'
+
+    class LocalConfig(TestingConfig):
+        SQLALCHEMY_DATABASE_URI = f'sqlite:///{db_file}'
+
+    app = create_app(LocalConfig)
+    assert app.config['SQLALCHEMY_DATABASE_URI'].endswith(str(db_file))
+    assert db_file.parent.exists()

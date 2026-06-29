@@ -14,11 +14,12 @@ python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip setuptools wheel
 python -m pip install -e '.[dev]'
+mkdir -p instance
 flask --app wsgi.py db upgrade
 flask --app wsgi.py run --host 0.0.0.0 --port 5000
 ```
 
-Open the app at `http://SERVER_IP:5000/auth/register` and create the first user.
+Open the app at `http://SERVER_IP:5000/auth/register` and create the first user. The local SQLite database file is created at `instance/finance.db`, not `app/instance/finance.db`.
 
 ### Why this fixes the install error
 
@@ -32,7 +33,7 @@ flask --app wsgi.py db upgrade
 python -m pytest
 ```
 
-Do not run `flask db init` for this repository because the `migrations/` directory is already included. Use `flask db upgrade` to create or update the database schema.
+Do not run `flask db init` for this repository because the `migrations/` directory is already included. Use `flask db upgrade` to create or update the database schema. If you edited `.env`, make sure `DATABASE_URL` is `sqlite:///instance/finance.db` for a local install; an absolute Docker-only path such as `sqlite:////app/instance/finance.db` can fail on a host server when `/app/instance` does not exist.
 
 ## Process 2: Run with Docker Compose
 
@@ -43,19 +44,30 @@ cd /var/www/html/Payment-Investment-Tracker
 cp .env.example .env
 docker compose build
 docker compose up -d
+
+# If your server has the legacy Compose v1 binary instead:
+docker-compose build
+docker-compose up -d
 ```
 
 Open the app at `http://SERVER_IP:8080/auth/register`.
 
-The Docker image uses Python 3.13, installs the project package, runs `flask --app wsgi.py db upgrade` automatically on container start, then launches Gunicorn. SQLite data is stored in the `sqlite_data` Docker volume and application logs are stored in the `app_logs` Docker volume.
+The Docker image uses Python 3.13, installs the project package, runs `flask --app wsgi.py db upgrade` automatically on container start, then launches Gunicorn. SQLite data is stored at `/app/instance/finance.db` inside the container on the `sqlite_data` Docker volume and application logs are stored in the `app_logs` Docker volume.
 
 ### Useful Docker commands
 
 ```bash
 docker compose logs -f web
 docker compose exec web flask --app wsgi.py db current
+docker compose exec web ls -lh /app/instance/finance.db
 docker compose exec web python -m pytest
 docker compose down
+
+# Legacy Compose v1 equivalents:
+docker-compose logs -f web
+docker-compose exec web flask --app wsgi.py db current
+docker-compose exec web ls -lh /app/instance/finance.db
+docker-compose down
 ```
 
 ## Development order
